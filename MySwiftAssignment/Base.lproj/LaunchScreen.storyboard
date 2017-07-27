@@ -30,7 +30,11 @@
                             <constraint firstItem="7Aq-ui-o9D" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="18v-3n-KIi"/>
                             <constraint firstAttribute="trailing" secondItem="7Aq-ui-o9D" secondAttribute="trailing" id="1rZ-LC-etd"/>
                             <constraint firstItem="7Aq-ui-o9D" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="H5s-TI-Lv0"/>
+                            <constraint firstAttribute="trailing" secondItem="7Aq-ui-o9D" secondAttribute="trailing" id="LqJ-Nt-2al"/>
+                            <constraint firstItem="7Aq-ui-o9D" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="Ybx-5d-ub3"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="7Aq-ui-o9D" secondAttribute="bottom" id="bnH-dE-anz"/>
                             <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="7Aq-ui-o9D" secondAttribute="bottom" id="pfu-4C-4oi"/>
+                            <constraint firstItem="7Aq-ui-o9D" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="rYn-au-Y2X"/>
                         </constraints>
                     </view>
                 </viewController>

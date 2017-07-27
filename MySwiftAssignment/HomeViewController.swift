@@ -25,31 +25,48 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var btnPrevious: UIButton!
     @IBOutlet weak var btnNext: UIButton!
     weak var selectedTextField : setTextField!
+    @IBOutlet weak var keyboardHeight: NSLayoutConstraint!
     weak var activeTextField : setTextField!
-
     weak var selectedLabel : UILabel!
-    var textFields : [setTextField] = [setTextField]()
+     var textFields : [setTextField] = [setTextField]()
+    weak var notificationObserver : NSObjectProtocol!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.title = "Count Cash Deposit - #302"
         
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: myNotificationKey),
-                                               object: nil,
-                                               queue: nil,
-                                               using:catchNotification)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.catchNotification(notification:)), name: NSNotification.Name(rawValue: myNotificationKey), object: nil)
         
         
         
         containerViewB.isHidden = true
+        
+        
+        
+        setTextFields()
+        showHidekeyboard(animate: false, height: 70)
+        // Do any additional setup after loading the view.
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        //showHidekeyboard(animate:false , height:70)
+        //keyBoardView.isHidden = false
+    }
+    override func viewDidLayoutSubviews() {
+        
+        self.segmentBorder()
+    }
+    
+    ////// Change SegmentBorder Color
+    func segmentBorder() {
+        
         segmentedControl.layer.cornerRadius = 0.0
         segmentedControl.tintColor = UIColor.clear
         
         let titleTextAttributes = [NSForegroundColorAttributeName: UIColor.darkGray]
         segmentedControl.setTitleTextAttributes(titleTextAttributes, for: .selected)
         segmentedControl.setTitleTextAttributes(titleTextAttributes, for: .normal)
-
+        
         
         segmentBottomBorder.borderColor = UIColor( red: 19/255, green: 118/255, blue:200/255, alpha: 1.0 ).cgColor
         segmentBottomBorder.borderWidth = 3
@@ -59,11 +76,24 @@ class HomeViewController: UIViewController {
         let y = segmentedControl.frame.size.height - (segmentBottomBorder.borderWidth)
         segmentBottomBorder.frame = CGRect(x: x, y: y, width: width, height: (segmentBottomBorder.borderWidth))
         segmentedControl.layer.addSublayer(segmentBottomBorder)
-        
-        setTextFields()
-        // Do any additional setup after loading the view.
     }
     
+    ///////Show Hide KeyBoard
+    func showHidekeyboard(animate : Bool, height : CGFloat){
+    
+       
+        if animate{
+            UIView.animate(withDuration: 0.5, animations: { 
+                self.keyboardHeight.constant = height
+                self.view.layoutIfNeeded()
+            })
+        } else{
+            self.keyboardHeight.constant = height
+            self.view.layoutIfNeeded()
+        }
+    
+    }
+    //// Set Text Fields
     func setTextFields(){
         if containerViewA.isHidden{
         
@@ -80,7 +110,8 @@ class HomeViewController: UIViewController {
             }
         }
     }
-        
+    
+    /////Set TextField Color
     func setTextFieldColor(color : UIColor){
         selectedTextField.setBottomBorder(color: color.cgColor)
         selectedLabel.textColor = color
@@ -89,23 +120,7 @@ class HomeViewController: UIViewController {
     /// Notification
     func catchNotification(notification:Notification) -> Void {
         
-        
-        
-        let xPosition = keyBoardView.frame.origin.x
-        
-        //View will slide up
-        let yPosition = self.view.frame.size.height - 360
-        
-        let height = keyBoardView.frame.size.height
-        let width = keyBoardView.frame.size.width
-            
-        
-        UIView.animate(withDuration: 1.0, animations: {
-            
-            self.keyBoardView.frame = CGRect(x: xPosition, y: yPosition, width: width, height: height)
-            
-        })
-        
+        showHidekeyboard(animate: true, height: 358)
         let tag :Int = notification.userInfo!["txtId"] as!Int
         print(tag)
         if tag == 1 {
@@ -141,10 +156,13 @@ class HomeViewController: UIViewController {
         }).first
         if !containerViewB.isHidden{
             
+            btnNext.isHidden = false
+            btnPrevious.isHidden = false
             selectedLabel = containerViewB.viewWithTag(tag) as! UILabel
             
         } else {
-            
+            btnNext.isHidden = true
+            btnPrevious.isHidden = true
             selectedLabel = containerViewA.subviews.filter({ (view) -> Bool in
                 return view.isKind(of: UILabel.self)
             }).first as! UILabel
@@ -170,7 +188,7 @@ class HomeViewController: UIViewController {
     }
     func textFieldDidBeginEditing(_ textField: UITextField) {
     }
-    
+    /////// Change Segment
     @IBAction func segmentedControlDidChange(_ sender: UISegmentedControl){
         
         
@@ -225,14 +243,8 @@ class HomeViewController: UIViewController {
             })
         }
         
-        segmentBottomBorder.borderColor = UIColor( red: 19/255, green: 118/255, blue:200/255, alpha: 1.0 ).cgColor
-        segmentBottomBorder.borderWidth = 3
-        let width: CGFloat = sender.frame.size.width/2
-
-        let x = CGFloat(sender.selectedSegmentIndex) * width
-        let y = sender.frame.size.height - (segmentBottomBorder.borderWidth)
-        segmentBottomBorder.frame = CGRect(x: x, y: y, width: width, height: (segmentBottomBorder.borderWidth))
-        sender.layer.addSublayer(segmentBottomBorder)
+        self.segmentBorder()
+        showHidekeyboard(animate: false, height: 70)
         
     }
     
@@ -254,7 +266,7 @@ class HomeViewController: UIViewController {
     }
     */
 
-    
+    /////// KeyBoard Number Press
     @IBAction func keyBoardNumberPress(sender : UIButton){
         
         if selectedTextField != nil {
@@ -277,6 +289,7 @@ class HomeViewController: UIViewController {
         }
         
     }
+    //// Count Total
     func countTotalValues() {
         
         totalAmount = 0.0
@@ -323,7 +336,6 @@ class HomeViewController: UIViewController {
                     }
                     
 
-
                     
                     print("Total", totalAmount)
                 }
@@ -336,21 +348,7 @@ class HomeViewController: UIViewController {
     }
     
     
-    ////// Test Case
-    func testTotalValues(textField : UITextField)-> Double {
-        
-        totalAmount = 0.0
-        if textField.text != nil && !((textField.text?.isEmpty)!){
-            
-            if textField.tag == 1 {
-                totalAmount += Double(textField.text!)! - Double(depositExpected)
-            }
-            
-            
-        }
-        return totalAmount
-
-    }
+    
     
     
     func formatCurrency(value: Double) -> String {
@@ -362,6 +360,7 @@ class HomeViewController: UIViewController {
         return result!
     }
     
+    ////// KeyBoard Delete Button
     @IBAction func keyboardDeletePress(sender : UIButton){
         if !(selectedTextField.text?.isEmpty)! && selectedTextField != nil {
             let text = selectedTextField.text
@@ -390,7 +389,7 @@ class HomeViewController: UIViewController {
             
         }
     }
-
+    ///// KeyBOard NextPrevious Button
     @IBAction func txtNextPrevious(sender : UIButton) {
         
         
@@ -416,22 +415,34 @@ class HomeViewController: UIViewController {
     }
     
     @IBAction func keyBoardDown(_ sender: Any) {
-        let xPosition = keyBoardView.frame.origin.x
+        showHidekeyboard(animate: true, height: 70)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        textFields.removeAll()
+    }
+    
+    deinit {
+        print ("deinitialize")
+
+    }
+    ////// Test Case
+    func testTotalValues(textField : UITextField)-> Double {
         
-        //View will slide 20px up
-        let yPosition = self.view.frame.size.height - 70
-        
-        let height = keyBoardView.frame.size.height
-        let width = keyBoardView.frame.size.width
-        
-        
-        UIView.animate(withDuration: 1.0, animations: {
+        totalAmount = 0.0
+        if textField.text != nil && !((textField.text?.isEmpty)!){
             
-            self.keyBoardView.frame = CGRect(x: xPosition, y: yPosition, width: width, height: height)
+            if textField.tag == 1 {
+                totalAmount += Double(textField.text!)! - Double(depositExpected)
+            }
             
-        })
+            
+        }
+        return totalAmount
+        
     }
 }
+
 extension Float {
     var convertAsLocaleCurrency :String {
         let formatter = NumberFormatter()
